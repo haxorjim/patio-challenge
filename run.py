@@ -4,6 +4,7 @@ from twilio.twiml.messaging_response import MessagingResponse, Message
 from jinja2 import Environment, FileSystemLoader
 from arrow import now
 import os
+import time
 
 
 app = Flask(__name__)
@@ -11,6 +12,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
 
 db = SQLAlchemy(app)
+
+os.environ['TZ'] = 'America/New_York'
+time.tzset()
 
 
 class Post(db.Model):
@@ -31,7 +35,7 @@ class Post(db.Model):
 def index():
     jinja = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
 
-    posts = Post.query.all()
+    posts = Post.query.order_by(Post.posted_on.desc()).all()
 
     return jinja.get_template('blog.html.j2').render(posts=posts)
 
