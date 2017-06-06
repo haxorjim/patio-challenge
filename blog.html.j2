@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Patio Challenge</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+      footer {
+          margin: 50px 0;
+      }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <!-- Blog Entries Column -->
+            <div class="col-md-12">
+                <h1 class="page-header">Patio Challenge</h1>
+                {% for post in posts %}
+                  <h2>{{ post.body }}</h2>
+                  <p class="lead">by {{ post.sender }}</p>
+                  <p><span class="glyphicon glyphicon-time"></span> Posted on {{post.posted_on}}</p>
+                  <hr>
+                  <img class="img-responsive" src="{{ post.media_url }}" alt="">
+                  <hr>
+                {% endfor %}
+            </div>
+        </div>
+        <hr>
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Rebar Labs Ltd 2017</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>

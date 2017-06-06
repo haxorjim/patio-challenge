@@ -1,8 +1,8 @@
 {
-  "name": "Start on Heroku: Python",
-  "description": "A barebones Python app, which can easily be deployed to Heroku.",
+  "name": "Patio Challenge",
+  "description": "A twilio powered microblog for a contest.",
   "image": "heroku/python",
   "repository": "https://github.com/heroku/python-getting-started",
-  "keywords": ["python", "django" ],
+  "keywords": ["python", "flask", "twilio" ],
   "addons": [ "heroku-postgresql" ]
 }

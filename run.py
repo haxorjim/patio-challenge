@@ -1,6 +1,8 @@
 from flask import Flask, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from twilio.twiml.messaging_response import MessagingResponse, Message
+from jinja2 import Environment, FileSystemLoader
+from arrow import now
 import os
 
 
@@ -16,36 +18,43 @@ class Post(db.Model):
     sender = db.Column(db.Text)
     body = db.Column(db.Text)
     media_url = db.Column(db.Text)
+    posted_on = db.Column(db.TIMESTAMP)
 
     def __init__(self, sender, body, media_url):
         self.sender = sender
         self.body = body
         self.media_url = media_url
+        self.posted_on = now().datetime
 
-    # def __repr__(self):
-    #     return '<User %r>' % self.username
+
+@app.route('/')
+def index():
+    jinja = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
+
+    posts = Post.query.all()
+
+    return jinja.get_template('blog.html.j2').render(posts=posts)
 
 
 @app.route("/sms", methods=['GET', 'POST'])
 def incoming_sms():
-    """Respond to incoming calls with a simple text message."""
     sender = request.values.get('From', None)
-    body = request.values.get('Body', None)
+    body = request.values.get('Body', '')
     num_media = int(request.values.get('NumMedia', 0))
     msg = Message().body(body)
     resp = MessagingResponse()
 
-    if num_media == 1:
-        media_url_0 = request.values.get('MediaUrl0', None)
-
-        db.session.add(Post(sender, body, media_url_0))
-        db.session.commit()
-
-        msg = msg.media(media_url_0)
+    if body == '':
+        msg = Message().body('Please include a message.')
     elif num_media > 1:
         msg = Message().body('Please only include one image.')
-    else:
+    elif num_media == 0:
         msg = Message().body('Please include an image.')
+    elif num_media == 1:
+        media_url_0 = request.values.get('MediaUrl0', None)
+        db.session.add(Post(sender, body, media_url_0))
+        db.session.commit()
+        msg = Message().body('Patio posted! http://bit.ly/2rIKhJa')
 
     resp.append(msg)
 
