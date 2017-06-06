@@ -12,21 +12,18 @@ def incoming_sms():
 
     # resp = MessagingResponse().message("Hello, Mobile Monkey")
 
-
-    resp = MessagingResponse()
-
     body = request.values.get('Body', None)
-
-    msg = Message().body(body)
-
     num_media = request.values.get('NumMedia', 0)
+    media_url_0 = None
 
     if num_media > 0:
         media_url_0 = request.values.get('MediaUrl0', None)
-        msg.media(media_url_0)
+        # msg = msg.media(media_url_0)
 
     # msg = Message().body("Hello, Mobile Monkey").media("https://demo.twilio.com/owl.png")
+    msg = Message().body(body).media(media_url_0)
 
+    resp = MessagingResponse()
     resp.append(msg)
 
     return str(resp)
