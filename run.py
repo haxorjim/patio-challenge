@@ -13,10 +13,12 @@ db = SQLAlchemy(app)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    sender = db.Column(db.Text)
     body = db.Column(db.Text)
     media_url = db.Column(db.Text)
 
-    def __init__(self, body, media_url):
+    def __init__(self, sender, body, media_url):
+        self.sender = sender
         self.body = body
         self.media_url = media_url
 
@@ -27,6 +29,7 @@ class Post(db.Model):
 @app.route("/sms", methods=['GET', 'POST'])
 def incoming_sms():
     """Respond to incoming calls with a simple text message."""
+    sender = request.values.get('From', None)
     body = request.values.get('Body', None)
     num_media = int(request.values.get('NumMedia', 0))
     msg = Message().body(body)
@@ -35,7 +38,7 @@ def incoming_sms():
     if num_media == 1:
         media_url_0 = request.values.get('MediaUrl0', None)
 
-        db.session.add(Post(body, media_url_0))
+        db.session.add(Post(sender, body, media_url_0))
         db.session.commit()
 
         msg = msg.media(media_url_0)
