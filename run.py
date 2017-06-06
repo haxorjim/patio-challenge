@@ -16,7 +16,7 @@ def incoming_sms():
     num_media = request.values.get('NumMedia', 0)
     media_url_0 = None
 
-    if num_media > 0:
+    if int(num_media) > 0:
         media_url_0 = request.values.get('MediaUrl0', None)
         # msg = msg.media(media_url_0)
 
@@ -30,5 +30,5 @@ def incoming_sms():
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    app.url_map.strict_slashes = False
+    # app.url_map.strict_slashes = False
     app.run(debug=True, host='0.0.0.0', port=port)
