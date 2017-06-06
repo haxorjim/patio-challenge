@@ -4,7 +4,6 @@ from twilio.twiml.messaging_response import MessagingResponse, Message
 from jinja2 import Environment, FileSystemLoader
 from arrow import now
 import os
-import time
 
 
 app = Flask(__name__)
@@ -12,9 +11,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
 
 db = SQLAlchemy(app)
-
-os.environ['TZ'] = 'America/New_York'
-time.tzset()
 
 
 class Post(db.Model):
@@ -28,7 +24,9 @@ class Post(db.Model):
         self.sender = sender
         self.body = body
         self.media_url = media_url
-        self.posted_on = now().datetime
+
+        ny_time = timezone('America/New_York')
+        self.posted_on = ny_tz.localize(now().datetime)
 
 
 @app.route('/')
