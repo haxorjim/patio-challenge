@@ -18,6 +18,8 @@ def incoming_sms():
     if num_media > 0:
         media_url_0 = request.values.get('MediaUrl0', None)
         msg = msg.media(media_url_0)
+    else:
+        msg = Message().body('Please include an image with your message.')
 
     resp.append(msg)
 
