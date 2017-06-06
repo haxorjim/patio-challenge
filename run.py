@@ -14,10 +14,11 @@ def incoming_sms():
     msg = Message().body(body)
     resp = MessagingResponse()
 
-    # Only support a single picture
-    if num_media > 0:
+    if num_media == 1:
         media_url_0 = request.values.get('MediaUrl0', None)
         msg = msg.media(media_url_0)
+    else if num_media > 1:
+        msg = Message().body('Please only include one image.')
     else:
         msg = Message().body('Please include an image with your message.')
 
