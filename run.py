@@ -6,14 +6,27 @@ import os
 app = Flask(__name__)
 
 
-@app.route("/api", methods=['GET', 'POST'])
-def hello_monkey():
+@app.route("/sms", methods=['GET', 'POST'])
+def incoming_sms():
     """Respond to incoming calls with a simple text message."""
 
     # resp = MessagingResponse().message("Hello, Mobile Monkey")
 
+
     resp = MessagingResponse()
-    msg = Message().body("Hello, Mobile Monkey").media("https://demo.twilio.com/owl.png")
+
+    body = request.values.get('Body', None)
+
+    msg = Message().body(body)
+
+    num_media = request.values.get('NumMedia', 0)
+
+    if num_media > 0:
+        media_url_0 = request.values.get('MediaUrl0', None)
+        msg.media(media_url_0)
+
+    # msg = Message().body("Hello, Mobile Monkey").media("https://demo.twilio.com/owl.png")
+
     resp.append(msg)
 
     return str(resp)
