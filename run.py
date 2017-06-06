@@ -30,4 +30,5 @@ def incoming_sms():
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
+    app.url_map.strict_slashes = False
     app.run(debug=True, host='0.0.0.0', port=port)
