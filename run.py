@@ -2,7 +2,8 @@ from flask import Flask, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from twilio.twiml.messaging_response import MessagingResponse, Message
 from jinja2 import Environment, FileSystemLoader
-from arrow import now
+
+import arrow
 import os
 
 
@@ -24,9 +25,7 @@ class Post(db.Model):
         self.sender = sender
         self.body = body
         self.media_url = media_url
-
-        ny_time = timezone('America/New_York')
-        self.posted_on = ny_tz.localize(now().datetime)
+        self.posted_on = arrow.utcnow().datetime
 
 
 @app.route('/')
@@ -34,6 +33,9 @@ def index():
     jinja = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
 
     posts = Post.query.order_by(Post.posted_on.desc()).all()
+
+    for post in posts:
+        post.posted_on = arrow.get(post.posted_on).to('America/New_York')
 
     return jinja.get_template('blog.html.j2').render(posts=posts)
 
