@@ -19,7 +19,7 @@
                 <h1 class="page-header">Patio Challenge</h1>
                 {% for post in posts %}
                   <h2>{{ post.body }}</h2>
-                  <p class="lead">by {{ post.sender }}</p>
+                  <p class="lead">by {{ post.teams[0].name }}</p>
                   <p><span class="glyphicon glyphicon-time"></span> Posted {{post.posted_on.humanize()}}</p>
                   <hr>
                   <img class="img-responsive" src="{{ post.media_url }}" alt="">

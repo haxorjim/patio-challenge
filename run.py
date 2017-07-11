@@ -1,7 +1,8 @@
 from flask import Flask, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-from twilio.twiml.messaging_response import MessagingResponse, Message
 from jinja2 import Environment, FileSystemLoader
+from twilio.rest import Client
+from twilio.twiml.messaging_response import MessagingResponse, Message
 
 import arrow
 import os
@@ -13,13 +14,27 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
 
 db = SQLAlchemy(app)
 
+client = Client(os.environ["ACCOUNT_SID"], os.environ["AUTH_TOKEN"])
+
+
+class Team(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text)
+
+
+class TeamMember(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
+    mobile_number = db.Column(db.Text)
+
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    sender = db.Column(db.Text)
+    sender = db.Column(db.Text, db.ForeignKey('team_member.mobile_number'))
     body = db.Column(db.Text)
     media_url = db.Column(db.Text)
     posted_on = db.Column(db.TIMESTAMP)
+    teams = db.relationship('Team', secondary='team_member')
 
     def __init__(self, sender, body, media_url):
         self.sender = sender
@@ -58,7 +73,13 @@ def incoming_sms():
         media_url_0 = request.values.get('MediaUrl0', None)
         db.session.add(Post(sender, body, media_url_0))
         db.session.commit()
-        msg = Message().body('Patio posted! http://bit.ly/2rIKhJa')
+        msg = Message().body('Patio posted! '.format(os.environ["APP_URL"]))
+
+        posting_team = Team.query.filter(Team.id == TeamMember.query.filter(TeamMember.mobile_number == sender).first().team_id).first()
+        other_team_members = TeamMember.query.filter(TeamMember.team_id != posting_team.id).all()
+
+        for member in other_team_members:
+            client.api.account.messages.create(to=member.mobile_number, from_=os.environ["TWILIO_NUMBER"], body='{} just posted a patio! '.format(posting_team.name, os.environ["APP_URL"]))
 
     resp.append(msg)
 
