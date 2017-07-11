@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, abort
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import Environment, FileSystemLoader
 from twilio.rest import Client
@@ -62,6 +62,9 @@ def incoming_sms():
     num_media = int(request.values.get('NumMedia', 0))
     msg = Message().body(body)
     resp = MessagingResponse()
+
+    if not TeamMember.query.filter(TeamMember.mobile_number == sender).first():
+        abort(403)
 
     if body == '' or num_media != 1:
         msg = Message().body('Please include a single image with a caption.')
