@@ -63,23 +63,19 @@ def incoming_sms():
     msg = Message().body(body)
     resp = MessagingResponse()
 
-    if body == '':
-        msg = Message().body('Please include a message.')
-    elif num_media > 1:
-        msg = Message().body('Please only include one image.')
-    elif num_media == 0:
-        msg = Message().body('Please include an image.')
+    if body == '' or num_media != 1:
+        msg = Message().body('Please include a single image with a caption.')
     elif num_media == 1:
         media_url_0 = request.values.get('MediaUrl0', None)
         db.session.add(Post(sender, body, media_url_0))
         db.session.commit()
-        msg = Message().body('Patio posted! '.format(os.environ["APP_URL"]))
+        msg = Message().body('Patio posted! {}'.format(os.environ["APP_URL"]))
 
         posting_team = Team.query.filter(Team.id == TeamMember.query.filter(TeamMember.mobile_number == sender).first().team_id).first()
         other_team_members = TeamMember.query.filter(TeamMember.team_id != posting_team.id).all()
 
         for member in other_team_members:
-            client.api.account.messages.create(to=member.mobile_number, from_=os.environ["TWILIO_NUMBER"], body='{} just posted a patio! '.format(posting_team.name, os.environ["APP_URL"]))
+            client.api.account.messages.create(to=member.mobile_number, from_=os.environ["TWILIO_NUMBER"], body='{} just posted a patio! {}'.format(posting_team.name, os.environ["APP_URL"]))
 
     resp.append(msg)
 
